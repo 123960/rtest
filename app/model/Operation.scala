@@ -5,7 +5,7 @@ class Operation (val scriptBase: String, val characteristics: List[Characteristi
   def scripts: List[String] = {
     for (i <- 0 until 1) //Represents some factor of randomness
       yield 
-        characteristics.par.foldLeft (scriptBase)((acc, charac) => acc.replaceAll(charac.key, charac.value))
+        characteristics.foldLeft (scriptBase)((acc, charac) => acc.replaceAll(charac.key, charac.value))
   } toList
 
 }

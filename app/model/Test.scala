@@ -3,7 +3,8 @@ package model
 class Test (val operations:  List[Operation],
             val validations: List[Validation]) {
 
-  def operationScripts: List[String] = (for (oper <- operations.par) yield oper.scripts).reduceLeft(_ ++ _)
+  def operationScripts:  List[String] = (for (oper <- operations.par) yield oper.scripts).reduceLeft(_ ++ _)
+  def validationScripts: List[String] = ???
 
 }
 
