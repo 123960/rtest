@@ -1,7 +1,6 @@
 package engine
 
-import java.sql.CallableStatement;
-import java.sql.Types;
+import java.sql.{CallableStatement, Types}
 import play.api.db._
 import play.api.Play.current
 import scala.util.{Try, Success, Failure}

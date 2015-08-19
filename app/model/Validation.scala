@@ -1,5 +1,3 @@
 package model
 
-class Validation {
-  
-}
+class Validation
