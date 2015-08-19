@@ -10,9 +10,9 @@ import model._
 object Executor {
 
   def process(test: Test) = {
-    execute[String](test.operationScripts)(executeScript)
+    execute(executeScript)(test.operationScripts)
       match {
-        case Success(r)  => execute[String](test.operationScripts)(executeScript)
+        case Success(r)  => execute(executeScript)(test.operationScripts)
                               match {
                                 case Success(r)  => ??? //Emits the result to Report
                                 case Failure(ex) => ??? //Lauch an error or something else
@@ -23,25 +23,28 @@ object Executor {
 
   /* If the item list has the same size of the result list
    * then all the items has been successfully executed
-   * The takewhile function stops the execution when receives a result false
+   * The takewhile function stops the execution when it eceives a result false
+   * This behave can be achieved only using a lazy list, because of that the l list is tranformed into a view
    */
-  def execute[T](l: List[T])(f: (T) => Boolean): Try[Boolean] =
-    Try(l.length == (l map f).takeWhile(r => r).length)
+  def execute[T](f: (T) => Boolean)(l: List[T]): Try[Boolean] =
+    Try(l.length == (l.view map f).takeWhile(r => r).length)
 
   /* This functions is insecure because it access an external platform
    * and does not returns a Try[Boolean] value
    * It is made in this way to keep the execute[T] function more readable and generic
+   * Use the execute[T] function instead
    */
-  def executeScript(script: String): Boolean = {
-    val conn = DB.getDataSource("oracle").getConnection
-    val cs = conn.prepareCall(script);
-    try {        
-      cs.registerOutParameter(1, Types.BOOLEAN);
-      cs.execute
-      cs.getBoolean(1)
-    } finally {
-      cs.close
+  private 
+    def executeScript(script: String): Boolean = {
+      val conn = DB.getDataSource("oracle").getConnection
+      val cs = conn.prepareCall(script);
+      try {        
+        cs.registerOutParameter(1, Types.BOOLEAN);
+        cs.execute
+        cs.getBoolean(1)
+      } finally {
+        cs.close
+      }
     }
-  }
 
 }
