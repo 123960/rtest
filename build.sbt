@@ -15,6 +15,8 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += "io.reactivex" %% "rxscala" % "0.25.0"
 
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.4" % "test"
+
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
 // Play provides two styles of routers, one expects its actions to be injected, the

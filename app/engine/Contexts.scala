@@ -6,5 +6,6 @@ import play.api.Play.current
 
 object Contexts {
   implicit val engineObserverContext: ExecutionContext = Akka.system.dispatchers.lookup("engine-observer-context")
-  implicit val engineExecuteContext: ExecutionContext = Akka.system.dispatchers.lookup("engine-execute-context")
+  implicit val engineDatabaseExecuteContext: ExecutionContext = Akka.system.dispatchers.lookup("engine-database-execute-context")
+  implicit val engineHttpExecuteContext: ExecutionContext = Akka.system.dispatchers.lookup("engine-http-execute-context")
 }

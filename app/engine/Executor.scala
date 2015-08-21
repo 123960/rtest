@@ -15,9 +15,11 @@ object Executor {
   })
 
   def process(test: Test) = {
-    execute(onDatabase)(test.operationScripts)
-    //execute(onDatabase)(test.validationScripts)
-    //emitreport
+    test.testType match {
+      case DatabaseTest =>  execute(onDatabase)(test.operationContents)(Contexts.engineDatabaseExecuteContext)
+      case HttpTest     =>  execute(onHttp)(test.operationContents)(Contexts.engineHttpExecuteContext)
+      case _            =>  ??? //emits an test failure with TestTypeNotDefiniedException
+    }
   }
 
   /* If the item list has the same size of the result list
@@ -25,18 +27,17 @@ object Executor {
    * The takewhile function stops the execution when it eceives a result false
    * This behave can be achieved only using a lazy list, because of that the l list is tranformed into a view
    */
-  def execute[T](f: (T) => Boolean)(l: List[T]): Future[Boolean] =
-    Future((l.length == (l.view map f).takeWhile(r => r).length))(Contexts.engineExecuteContext)
+  def execute[T](f: (T) => Boolean)(list: List[T])(implicit executionContext: ExecutionContext): Future[Boolean] =
+    list match {
+      case List() => (Promise[Boolean]() failure (new IllegalArgumentException("An empty list was received"))).future
+      case l      => Future((l.length == (l.view map f).takeWhile(r => r).length))(executionContext)
+    }
+    
 
-  /* This functions is insecure because it access an external platform
-   * and does not returns a Try[Boolean] value
-   * It is made in this way to keep the execute[T] function more readable and generic
-   * Use the execute[T] function instead
-   */
   private 
-    def onDatabase(script: String): Boolean = {
+    def onDatabase(content: String): Boolean = {
       val conn = DB.getDataSource("oracle").getConnection
-      val cs = conn.prepareCall(script);
+      val cs = conn.prepareCall(content);
       try {        
         cs.registerOutParameter(1, Types.BOOLEAN);
         cs.execute
@@ -45,5 +46,9 @@ object Executor {
         cs.close
       }
     }
+
+  private 
+    def onHttp(content: String): Boolean = ???
+
 
 }
