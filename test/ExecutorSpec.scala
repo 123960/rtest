@@ -11,10 +11,10 @@ import ExecutionContext.Implicits.global
 
 object ExecutorSpec extends Properties("Executor") {
 
-  property("execute laziness and breakness") = forAll { (l: List[Boolean]) =>
+  property("executeWhileTrue laziness and breakness") = forAll { (l: List[Boolean]) =>
     var i = 0
     def f(b: Boolean) = {i += 1; b}
-    val future = Executor.execute(f)(l)
+    val future = Executor.executeWhileTrue(f)(l)
     val executeTry = Try(Await.result(future, 10 seconds))
     executeTry match {
       case Success(r)  => l.length match {

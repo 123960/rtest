@@ -16,8 +16,8 @@ object Executor {
 
   def process(test: Test) = {
     test.testType match {
-      case DatabaseTest =>  execute(onDatabase)(test.operationContents)(Contexts.engineDatabaseExecuteContext)
-      case HttpTest     =>  execute(onHttp)(test.operationContents)(Contexts.engineHttpExecuteContext)
+      case DatabaseTest =>  executeWhileTrue(onDatabase)(test.contents)(Contexts.engineDatabaseExecuteContext)
+      case HttpTest     =>  executeWhileTrue(onHttp)(test.contents)(Contexts.engineHttpExecuteContext)
       case _            =>  ??? //emits an test failure with TestTypeNotDefiniedException
     }
   }
@@ -27,7 +27,7 @@ object Executor {
    * The takewhile function stops the execution when it eceives a result false
    * This behave can be achieved only using a lazy list, because of that the l list is tranformed into a view
    */
-  def execute[T](f: (T) => Boolean)(list: List[T])(implicit executionContext: ExecutionContext): Future[Boolean] =
+  def executeWhileTrue[T](f: (T) => Boolean)(list: List[T])(implicit executionContext: ExecutionContext): Future[Boolean] =
     list match {
       case List() => (Promise[Boolean]() failure (new IllegalArgumentException("An empty list was received"))).future
       case l      => Future((l.length == (l.view map f).takeWhile(r => r).length))(executionContext)
@@ -49,6 +49,5 @@ object Executor {
 
   private 
     def onHttp(content: String): Boolean = ???
-
 
 }

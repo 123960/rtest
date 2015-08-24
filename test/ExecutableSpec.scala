@@ -6,9 +6,9 @@ import org.scalacheck.Gen.{ choose, listOf, nonEmptyListOf, listOfN, oneOf }
 import model._
 import scala.util._
 
-object OperationSpec extends Properties("Operation") {
+object ExecutableSpec extends Properties("Executable") {
 
-  property("contents replace") = forAll { (oper: Operation) =>
+  property("contents replace using Operation") = forAll { (oper: Operation) =>
     !(oper.contents.view.map(s => s contains "&").takeWhile(r => !r) reduceLeft(_ || _))
   }
 
