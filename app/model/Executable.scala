@@ -14,7 +14,7 @@ case class Operation (val contentBase: String, val characteristics: List[Charact
 
   def contents: List[String] = {
     for (i <- 0 until 1) //Represents some factor of randomness
-      yield resolveContent(contentBase, characteristics)        
+      yield resolveContent(contentBase, characteristics)
   } toList
 
 }

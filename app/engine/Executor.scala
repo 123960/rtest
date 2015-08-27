@@ -3,6 +3,7 @@ package engine
 import java.sql.{CallableStatement, Types}
 import play.api.db._
 import play.api.Play.current
+import rx.lang.scala.Observable
 import scala.concurrent._
 import scala.util.{Try, Success, Failure}
 import model._
@@ -10,15 +11,23 @@ import controller._
 
 object Executor {
 
-  def start = ExecuteController.observable.subscribe ({
-    test => Future(process(test))(Contexts.engineObserverContext)
-  })
+  def resultObservable(testObservable: Observable[Test] = ExecuteController.observable): Observable[Result] = {
+    Observable(subscriber => {
+      testObservable.subscribe ({
+        test => val f = process(test)
+                f.onComplete {
+                  case Success(b)  => subscriber.onNext(Result(test, b))
+                  case Failure(ex) => println("An error has occured: " + ex.getMessage)
+                }(Contexts.engineObserverContext)
+      })
+    })
+  }
 
-  def process(test: Test) = {
+  def process(test: Test): Future[Boolean] = {
     test.testType match {
-      case DatabaseTest =>  executeWhileTrue(onDatabase)(test.contents)(Contexts.engineDatabaseExecuteContext)
-      case HttpTest     =>  executeWhileTrue(onHttp)(test.contents)(Contexts.engineHttpExecuteContext)
-      case _            =>  ??? //emits an test failure with TestTypeNotDefiniedException
+      case DatabaseTest => executeWhileTrue(onDatabase)(test.contents)(Contexts.engineDatabaseExecuteContext)
+      case HttpTest     => executeWhileTrue(onHttp)(test.contents)(Contexts.engineHttpExecuteContext)
+      case _            => (Promise[Boolean]() failure (new IllegalArgumentException("A not defined TestType was received"))).future
     }
   }
 
@@ -38,7 +47,7 @@ object Executor {
     def onDatabase(content: String): Boolean = {
       val conn = DB.getDataSource("oracle").getConnection
       val cs = conn.prepareCall(content);
-      try {        
+      try {
         cs.registerOutParameter(1, Types.BOOLEAN);
         cs.execute
         cs.getBoolean(1)

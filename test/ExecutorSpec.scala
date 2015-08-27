@@ -1,7 +1,7 @@
 package test
 
 import org.scalacheck.Properties
-import org.scalacheck.Prop.{forAll}
+import org.scalacheck.Prop._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
@@ -29,15 +29,5 @@ object ExecutorSpec extends Properties("Executor") {
                           }
     }
   }
-
-  //property("execute exception for an empty list") = ???
-
-  //property("process database Test") = { 
-  //  val script = "BEGIN SELECT 1 INTO ? FROM DUAL; END;"
-  //  val t = Test(operations  = List(Operation(contentBase = script, characteristics = List(),
-  //               validations = List(),
-  //               testType    = TestType.DatabaseTest)))
-  //  Executor.process(t)
-  //}
 
 }
