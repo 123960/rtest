@@ -20,6 +20,9 @@ object Executor {
                   case Failure(ex) => println("An error has occured: " + ex.getMessage)
                 }(Contexts.engineObserverContext)
       })
+      testObservable.doOnCompleted({
+        subscriber.onCompleted()
+      })
     })
   }
 
@@ -27,6 +30,7 @@ object Executor {
     test.testType match {
       case DatabaseTest => executeWhileTrue(onDatabase)(test.contents)(Contexts.engineDatabaseExecuteContext)
       case HttpTest     => executeWhileTrue(onHttp)(test.contents)(Contexts.engineHttpExecuteContext)
+      case DummyTest    => executeWhileTrue(onDummy)(test.contents)(ExecutionContext.Implicits.global)
       case _            => (Promise[Boolean]() failure (new IllegalArgumentException("A not defined TestType was received"))).future
     }
   }
@@ -58,5 +62,8 @@ object Executor {
 
   private 
     def onHttp(content: String): Boolean = ???
+
+  private 
+    def onDummy(content: String): Boolean = true
 
 }

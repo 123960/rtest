@@ -1,6 +1,7 @@
 package model
 
-class Test (val operations:  List[Operation],
+class Test (val name: String,
+            val operations:  List[Operation],
             val validations: List[Validation],
             val testType: TestType) {
 
@@ -12,12 +13,15 @@ class Test (val operations:  List[Operation],
     def resolveContents(exeList: List[Executable]): List[String] =
     (for (exe <- exeList) yield exe.contents).foldLeft(List[String]())((acc, l) => acc ++ l)
 
+  override def toString(): String =  name  
+
 }
 
 object Test {
 
-  def apply (operations:  List[Operation],
+  def apply (name: String,
+             operations:  List[Operation],
              validations: List[Validation],
-             testType: TestType) = new Test(operations, validations, testType)
+             testType: TestType) = new Test(name, operations, validations, testType)
 
 }

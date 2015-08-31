@@ -6,6 +6,11 @@ import scala.util._
 
 object Generators {
 
+  lazy val testGen: Gen[model.Test] = {
+    val operation = operationGen.sample.get
+    model.Test("Teste " + Random.nextInt, List(operation), List(), DummyTest)
+  }
+
   lazy val operationGen: Gen[Operation] = {
     val stringList  = {for (i <- 0 to Random.nextInt(100)) yield Random.nextInt(10000)} toList
     val characList  = {for (i <- 0 to Random.nextInt(15)) yield testCharacteristicGen.sample.get} toList

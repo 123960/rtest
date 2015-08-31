@@ -5,11 +5,21 @@ import org.scalacheck.Prop._
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
+import rx.lang.scala.Observable
 import engine._
 import model._
 import ExecutionContext.Implicits.global
 
 object ExecutorSpec extends Properties("Executor") {
+
+  implicit lazy val arbTest: org.scalacheck.Arbitrary[Test] = org.scalacheck.Arbitrary(Generators.testGen)
+
+  property("Result emission") = forAll { (l: List[Test]) =>
+    var i = 0
+    val o = Executor.resultObservable(Observable.from(l))
+    o.foreach(_ => i += 1)
+    l.length == i
+  }
 
   property("executeWhileTrue laziness and breakness") = forAll { (l: List[Boolean]) =>
     var i = 0
